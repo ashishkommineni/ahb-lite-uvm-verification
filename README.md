@@ -24,7 +24,7 @@ make lint
 make smoke
 ```
 
-The smoke test executes eight writes, eight readbacks, and three error cases. Success prints `AHB_LITE_SMOKE_PASS checks=19`. The Xcelium regression adds constrained-random addresses, sizes, responses, and coverage.
+The smoke test executes eight writes, eight readbacks, three error cases, and the live protocol assertions. Success prints `AHB_LITE_SMOKE_PASS checks=19`. The Xcelium regression adds constrained-random addresses, sizes, responses, and coverage.
 
 See [verified results and tool scope](docs/verification_results.md) for the reproducible validation record.
 
