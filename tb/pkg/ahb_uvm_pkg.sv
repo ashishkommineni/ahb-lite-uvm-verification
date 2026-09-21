@@ -153,6 +153,9 @@ package ahb_uvm_pkg;
                      "expected=%08h got=%08h", model[tr.addr[$clog2(DEPTH)+1:2]], tr.rdata))
       end
     endfunction
+    function void check_phase(uvm_phase phase);
+      if (checked == 0) `uvm_error("NO_TRAFFIC", "No AHB-Lite beats reached the scoreboard")
+    endfunction
     function void report_phase(uvm_phase phase);
       `uvm_info("AHB_SUMMARY", $sformatf("Checked %0d beats", checked), UVM_LOW)
     endfunction
@@ -218,6 +221,27 @@ package ahb_uvm_pkg;
         req.size  = 2;
         finish_item(req);
       end
+      req = ahb_item::type_id::create("misaligned");
+      start_item(req);
+      req.addr  = 2;
+      req.write = 0;
+      req.data  = 0;
+      req.size  = 2;
+      finish_item(req);
+      req = ahb_item::type_id::create("invalid_size");
+      start_item(req);
+      req.addr  = 0;
+      req.write = 0;
+      req.data  = 0;
+      req.size  = 1;
+      finish_item(req);
+      req = ahb_item::type_id::create("decode_error");
+      start_item(req);
+      req.addr  = DEPTH * 4;
+      req.write = 0;
+      req.data  = 0;
+      req.size  = 2;
+      finish_item(req);
       repeat (100) begin
         req = ahb_item::type_id::create("rand");
         start_item(req);
