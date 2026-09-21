@@ -18,6 +18,21 @@ module tb_ahb_smoke;
   ) dut (
       .*
   );
+  ahb_sva #(
+      .ADDR_WIDTH(ADDR_WIDTH),
+      .DATA_WIDTH(DATA_WIDTH)
+  ) sva (
+      .HCLK,
+      .HRESETn,
+      .HSEL,
+      .HWRITE,
+      .HREADY,
+      .HRESP,
+      .HADDR,
+      .HTRANS,
+      .HSIZE,
+      .HWDATA
+  );
   task automatic beat(input bit wr, input logic [9:0] addr, input logic [2:0] size,
                       input logic [31:0] wdata, output logic [31:0] rdata, output bit resp);
     while (!HREADY) @(negedge HCLK);
