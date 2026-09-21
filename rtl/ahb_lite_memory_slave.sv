@@ -36,8 +36,17 @@ module ahb_lite_memory_slave #(
   logic                  address_accept;
   logic                  transfer_complete;
   logic                  address_error;
+  logic                  wait_done;
 
-  assign address_accept = HSEL && HREADY && HTRANS[1];
+  generate
+    if (WAIT_STATES == 0) begin : g_no_wait
+      assign wait_done = 1'b1;
+    end else begin : g_wait
+      assign wait_done = (wait_count_q == WAIT_W'(WAIT_STATES));
+    end
+  endgenerate
+
+  assign address_accept = HSEL && HREADY && ((HTRANS == 2'b10) || (HTRANS == 2'b11));
   assign address_error  = (HSIZE != 3'b010) ||
                           (HADDR[WORD_LSB-1:0] != '0) ||
                           (HADDR >= ADDR_WIDTH'(MEM_BYTES));
@@ -46,7 +55,7 @@ module ahb_lite_memory_slave #(
     HREADYOUT = 1'b1;
     HRESP     = 1'b0;
     if (active_q) begin
-      if (wait_count_q < WAIT_W'(WAIT_STATES)) begin
+      if (!wait_done) begin
         HREADYOUT = 1'b0;
       end else if (error_q) begin
         HRESP     = 1'b1;
@@ -75,7 +84,7 @@ module ahb_lite_memory_slave #(
         error_second_q <= 1'b0;
         wait_count_q   <= '0;
       end else if (active_q) begin
-        if (wait_count_q < WAIT_W'(WAIT_STATES)) wait_count_q <= wait_count_q + 1'b1;
+        if (!wait_done) wait_count_q <= wait_count_q + 1'b1;
         else if (error_q && !error_second_q) error_second_q <= 1'b1;
       end
 
