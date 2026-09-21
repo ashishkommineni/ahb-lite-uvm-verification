@@ -18,8 +18,12 @@ module ahb_sva #(
   endclocking
   default disable iff (!HRESETn); ap_control_stable_when_stalled :
   assert property (!HREADY |=> $stable({HSEL, HADDR, HTRANS, HWRITE, HSIZE}));
-  ap_busy_has_no_new_transfer :
-  assert property (HTRANS == 2'b01 |-> !HTRANS[1]);
+  ap_error_first_cycle_stalls :
+  assert property ($rose(HRESP) |-> !HREADY);
+  ap_error_second_cycle_completes :
+  assert property (HRESP && !HREADY |=> HRESP && HREADY);
+  ap_response_known :
+  assert property (!$isunknown({HREADY, HRESP}));
   cp_read :
   cover property (HSEL && HREADY && HTRANS[1] && !HWRITE);
   cp_write :
